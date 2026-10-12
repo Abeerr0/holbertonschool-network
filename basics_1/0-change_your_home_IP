@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Update the localhost and facebook.com mappings in /etc/hosts.
+set -e
+
+hosts_file=/etc/hosts
+temporary_file=$(mktemp)
+trap 'rm -f "$temporary_file"' EXIT
+
+# Keep other hostnames, including aliases on the same line.
+awk '
+    /^[[:space:]]*#/ || NF == 0 { print; next }
+    {
+        line = $1
+        aliases = 0
+        comment = ""
+        for (i = 2; i <= NF; i++) {
+            if ($i ~ /^#/) {
+                for (j = i; j <= NF; j++) comment = comment " " $j
+                break
+            }
+            if ($i != "localhost" && $i != "facebook.com") {
+                line = line " " $i
+                aliases++
+            }
+        }
+        if (aliases > 0) print line comment
+        else if (comment != "") print comment
+    }
+    END {
+        print "127.0.0.2 localhost"
+        print "8.8.8.8 facebook.com"
+    }
+' "$hosts_file" > "$temporary_file"
+
+cat "$temporary_file" > "$hosts_file"

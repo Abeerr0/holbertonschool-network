@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Listen for a TCP connection on localhost port 98 and print received text.
+nc -l localhost 98
