@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Display listening sockets with their process IDs and program names.
+netstat -lp
